@@ -1,0 +1,222 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <title>Plot 4</title>
+   <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+   <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+   <script type="text/babel">
+      class Circle extends React.Component {         
+         constructor(props) {
+            super(props);
+         }
+         render() { 
+            var color = "white";
+            if (this.props.cell == 1) {
+               color = "black"
+            } else if (this.props.cell == 2) {
+               color = "red"
+            }       
+            var style = {
+               backgroundColor: color,
+               border: "1px solid black",
+               borderRadius: "100%",
+               paddingTop: "98%"
+            }            
+            return (
+               <div style={style}>
+               </div>
+            )}
+      }
+      class Cell extends React.Component {
+         constructor(props) {
+            super(props);
+            this.style = {
+               height: 50,
+               width: 50,
+               border: "1px solid black",
+               backgroundColor: "yellow"
+            }
+         }
+         render() {
+            return (
+               <div style = {this.style} onClick = {() => this.props.handleClick(this.props.row, this.props.col)}>
+                  <Circle cell={this.props.cell} />
+               </div>
+            )
+         }
+      }
+      class Row extends React.Component {
+         constructor(props) {
+            super(props);
+            this.style = {
+               display: "flex"
+            }
+         }
+         render(){
+            var rowcells = [];
+            for(let i = 0; i < 7; i ++) {                           
+               rowcells.push(<Cell key={i} col ={i} row={this.props.row} cell={this.props.cells[i]} handleClick={this.props.handleClick}/>)
+            }
+            return (
+               <div style = {this.style}>
+                  {rowcells}
+               </div>
+            )
+         }
+      }
+      class Board extends React.Component {
+         constructor(props) {
+            super(props);
+         }
+         render() {       
+            var rows = [];
+            for(let i = 5; i >= 0; i--) {
+               rows.push(<Row key={i} row={i} cells={this.props.cells[i]} handleClick={this.props.handleClick}/>)
+            }   
+            return (
+               <div>{rows}</div>
+            )
+         }
+      }
+      class Game extends React.Component {
+         constructor(props) {
+            super(props);
+            var cells = [];
+            for(let i = 0; i < 6; i++) {
+               cells.push(new Array(7).fill(0))
+            }
+            this.state = {player: false, cells: cells, winner : 0};
+            this.handleClick = this.handleClick.bind(this);
+            this.handleReset = this.handleReset.bind(this);
+         }
+         render(){
+            var style = {
+               display: 'flex'
+            }            
+            return(
+               <div>
+                  <h1>{this.state.winner == -1 ? "Nobody won!" : this.state.winner == 1 ?  "Naboo Wins!!!!" : this.state.winner == 2 ? "Haan Bui Wins!!!!" : this.state.player ? "Naboo's Turn" : "Haan Bui's Turn"}</h1>
+                  <div style={style}>
+                     <Board cells={this.state.cells} handleClick={this.handleClick} />
+                  </div>
+                  <button onClick={() => this.handleReset()}>Restart</button>
+               </div>
+            )
+         }
+         handleReset() {
+            var temp = []
+            for(let i = 0; i < 6; i++) {
+               temp.push(new Array(7).fill(0))
+            }
+            this.setState({player: false, cells: temp, winner: 0})
+         }
+         findRow(col) {
+            for(let i = 0; i < 6; i++) {
+               if (this.state.cells[i][col] == 0) return i
+            }
+            return -1;
+         }
+         getL2RDiagArray(i, cells) {
+            var diagArray = [];
+            var y1 = i <= 5 ? 0 : i - 5; 
+            var y2 = i <= 6 ? i : 6; 
+            var x1 = i <= 5 ? i : 5; 
+            var x2 = i <= 6 ? 0 : i - 6; 
+            // the ends always go in, unless duplicate
+            diagArray.push(cells[x1][y1]);
+            // now let us push the middle points
+            for(let counter = 1; counter < x1 - x2; counter++) { 
+               diagArray.push(cells[x1 - counter][y1 + counter])
+            }
+            // now add ending point
+            if (!(x1 == x2 && y1 == y2)) {
+               diagArray.push(cells[x2][y2]);            
+            }
+            return diagArray;
+         }
+         getR2LDiagArray(i, cells) {         
+            var diagArray = [];
+            var x1 = i <= 6 ? 0 : i - 6; 
+            var y1 = i <= 6 ? 6 - i : 0; 
+            var x2 = i <= 5 ? i : 5; 
+            var y2 = i <= 5 ? 6 : 11 - i; 
+            diagArray.push(cells[x1][y1]);
+            for(let counter = 1; counter < x2 - x1; counter++) {  
+               diagArray.push(cells[x1 + counter][y1 + counter])
+            }     
+            if (!(x1 == x2 && y1 == y2)) {                
+               diagArray.push(cells[x2][y2]);            
+            }
+            return diagArray;
+         }         
+         checkVictory(cells, row, col) {
+            var pattern = this.state.player ? [1, 1, 1, 1] : [2, 2, 2, 2];
+            var victoryFlag = this.state.player ? 1 : 2;
+            // check horizontal
+            for(let i = 0; i < 6; i++) {
+               var row = cells[i];
+               var v1 = row.toString().indexOf(pattern.toString())
+               if (v1 > -1) return victoryFlag;
+            }
+            // check vertical
+            for(let col = 0; col < 7; col++) {
+               var colArray = [];
+               for (let row = 0; row < 6; row++) {
+                  colArray.push(cells[row][col])
+               }
+               var v2 = colArray.toString().indexOf(pattern.toString());
+               if (v2 > -1) return victoryFlag;
+            }
+            // check diagonal left to right
+            for(let i = 0; i < 12; i++) {
+               var diagArray1 = this.getL2RDiagArray(i, cells);
+               var v3 = diagArray1.toString().indexOf(pattern.toString())
+               if (v3 > -1) return victoryFlag;
+               var diagArray2 = this.getR2LDiagArray(i, cells);         
+               var v4 = diagArray2.toString().indexOf(pattern.toString());
+               if (v4 > -1) return victoryFlag;
+           }
+           return 0;
+         }
+         checkGameEnd(cells) {
+            for(let i = 0; i < 6; i++) {
+               for(let j = 0; j < 7; j++) {
+                  if (cells[i][j] == 0) return 0; // there are still 0's left on the grid
+               }
+            }
+            // there are no 0's left on the grid
+            return -1;
+         }
+         handleClick(row, col) {
+            if (this.state.winner > 0 || this.state.winner < 0) return;
+            var temp = []
+            for(let i = 0; i < 6; i++) {
+               temp.push(this.state.cells[i].slice())
+            }
+            var newRow = this.findRow(col)
+            console.log(newRow);
+            if (newRow != -1) {
+               temp[newRow][col] = this.state.player ? 1 : 2;
+               var winner = this.checkVictory(temp, newRow, col);
+               if (winner == 0) {
+                  var gameEnd = this.checkGameEnd(temp);
+                  if (gameEnd != -1) {
+                     this.setState({player: !this.state.player, cells: temp, winner: winner});
+                  } else {
+                     this.setState({player: !this.state.player, cells: temp, winner: -1});
+                  }
+               }
+               
+            }
+         }
+      }
+      ReactDOM.render(<Game />, document.getElementById('root'))
+   </script>   
+</head>
+<body>
+   <div id="root"></div>
+</body>
+</html>

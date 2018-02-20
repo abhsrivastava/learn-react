@@ -1,0 +1,73 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <title>Page Title</title>
+   <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+   <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+   <script type="text/babel">
+      function VehicleAppHeader(props){return (
+         <div>
+            <h2>{props.title}</h2>
+            <p>{props.description}</p>
+         </div>
+      )}
+      function VehicleSelect(props){return (
+         <div>
+            <p>{props.title}</p>
+            <select>
+               <option value="All" selected>All</option>               
+               {props.items.map(function(object, i) {
+                  return <option value={props.items[i]}>{props.items[i]}</option>
+               })}
+            </select>
+         </div>
+      )}
+      function VehicleDetails(props) { return (
+         <div>
+            <table>
+               <thead>
+                  <th>Year</th>
+                  <th>Model</th>
+                  <th>Price</th>
+                  <th>Buy</th>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td>{props.item.year}</td>
+                     <td>{props.item.model}</td>
+                     <td>${props.item.price}</td>
+                     <td><button>Buy Now</button></td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      )}
+      function VehicleType(props){return (
+         <div>
+            <h3>{props.title}</h3>
+            {props.items.map(function(object, i){
+               return <ul><VehicleDetails item={props.items[i]} /></ul>
+            })}
+         </div>
+      )}
+      function VehicleApp(props){return (
+         <div>
+            <div>
+               <VehicleAppHeader title="Welcome to React Transportation" description="The best place to buy vehicles online" />
+               <VehicleSelect title="" items={["Cars", "Trucks", "Convertibles"]} />
+               <VehicleType title="Cars" items={[{year: 2013, model: "A", price: 32000}, {year: 2011, model: "B", price: 4400}, {year: 2016, model: "B", price: 15500}]}/>
+               <VehicleType title="Trucks" items={[{year: 2014, model: "D", price: 18000}, {year: 2013, model: "E", price: 5200}]}/>
+               <VehicleType title="Convertibles" items={[{year: 2009, model: "F", price: 2000}, {year: 2012, model: "G", price: 6000}, {year: 2017, model: "H", price: 12500}, {year: 2017, model: "M", price: 50000}]}/>               
+            </div>
+         </div>
+      )}
+      ReactDOM.render(<VehicleApp />, document.getElementById("root"))
+   </script>
+</head>
+<body>
+   <div id="root"></div>
+</body>
+</html>

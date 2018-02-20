@@ -1,0 +1,52 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+   <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+   <script type="text/babel">
+      class Details extends React.Component {
+         render() {return (
+            <h1>{this.props.details}</h1>
+         )}
+      }
+      class Button extends React.Component {
+         render() { return (
+            <button 
+               style={{color: this.props.active?'red':'blue'}} onClick={ () =>
+                  {this.props.clickHandler(this.props.id)}}>
+               {this.props.name}
+            </button>
+         )}
+      }
+      class App extends React.Component {
+         constructor(props) {
+            super(props)
+            this.state = {activeArray: [0, 0, 0, 0], details: ""}
+            this.clickHandler = this.clickHandler.bind(this)
+         }
+         clickHandler(id) {
+            var array = [0, 0, 0, 0]
+            array[id] = 1
+            this.setState({activeArray: array})
+            console.log(id)
+         }
+         render() {return (
+            <div>
+               <Details details="My Buttons App"/>            
+               <Button name="One" active={this.state.activeArray[0]} clickHandler={this.clickHandler} id = {0} />
+               <Button name="Two" active={this.state.activeArray[1]} clickHandler={this.clickHandler} id = {1} />
+               <Button name="Three" active={this.state.activeArray[2]} clickHandler={this.clickHandler} id = {2} />
+               <Button name="Four" active={this.state.activeArray[3]} clickHandler={this.clickHandler} id = {3} />
+            </div>
+         )}
+      }
+      ReactDOM.render(<App />, document.getElementById("root"))
+   </script>   
+</head>
+<body>
+   <div id="root"></div>
+</body>
+</html>
