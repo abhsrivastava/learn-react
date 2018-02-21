@@ -1,0 +1,139 @@
+<!DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <title>Forms</title>
+   <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+   <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+   <script type="text/babel">
+      class PostButton extends React.Component {
+         constructor(props) {
+            super(props);
+         }
+         render() { 
+            var style = {
+               width:24,
+               height:24
+            }
+            return (
+               <button onClick={() => {this.props.handleClick(this.props.type, this.props.id)}}>{this.props.label}</button>
+            )
+         }
+      }
+      class PostText extends React.Component {
+         constructor(props) {
+            super(props);
+         }
+         render() {
+            var style = {
+               border: '1px solid  black',
+               width: this.props.width
+            }
+            return (
+               <div style={style}>{this.props.text}</div>
+            )
+         }
+      }
+      class Post extends React.Component {
+         constructor(props) {
+            super(props);
+         }
+         render() { 
+            var style = {
+               display: "flex"
+            }
+            return (
+               <div style={style}>
+                  <PostButton label="x" type="delete" id={this.props.id} handleClick={this.props.handleUpdate} />
+                  <PostText text={this.props.text} width="200" />
+                  <PostButton label="+" type="increment" id= {this.props.id} handleClick={this.props.handleUpdate} />
+                  <PostText text = {this.props.score} width="20" />
+                  <PostButton label="-" type="decrement" id= {this.props.id} handleClick={this.props.handleUpdate}/>
+               </div>
+            )
+         }
+      }
+      class PostList extends React.Component {
+         constructor(props) {
+            super(props);
+         }
+         render() { return (
+            <ol>
+               {
+                  this.props.posts.map((item, index) => 
+                     <Post id={index} text={item.text} score={item.score} handleUpdate={this.props.handleUpdate} />
+                  )
+               }
+            </ol>
+         )}
+      }
+      class PostCreator extends React.Component {
+         constructor(props) {
+            super(props);
+            this.state = {value: ""}
+         }
+         handleChange(event) {
+            this.setState({value: event.target.value});
+         }
+         render() { 
+            var input = {
+               text: this.state.value,
+               score: 0
+            }
+            var cleared = {value: ""}
+            return (
+               <div>
+                  <input value={this.state.value} onChange= {this.handleChange.bind(this)} />
+                  <button onClick={() => {this.setState(cleared);this.props.handleClick(input);}}>Create Post</button>
+               </div>
+            )
+         }
+      }
+      class App extends React.Component {
+         constructor(props) {
+            super(props);
+            this.state = {posts: [{text: "Foo", score: 10}, {text: "Bar", score: 20}]};
+            this.handleAdd = this.handleAdd.bind(this);
+            this.handleUpdate = this.handleUpdate.bind(this);
+         }
+         handleUpdate(updateType, id) {
+            var items = this.state.posts.slice();
+            var item = items[id];
+            if (updateType == 'delete') {
+               console.log('id' + id);
+               items.splice(id, 1);
+               this.setState({posts: items})
+            } else if (updateType == 'increment') {
+               items[id] = {text: item.text, score: item.score + 1}
+               this.setState({posts: items})
+            } else if(updateType == 'decrement') {
+               items[id] = {text: item.text, score: item.score - 1}
+               this.setState({posts: items})
+            } else {
+               return;
+            }
+         }
+         handleAdd(item) {
+            if (item.text.trim() == "") return;
+            var items = this.state.posts
+            items.push(item)
+            this.setState({posts: items}, () => console.log(this.state.posts));
+         }
+         render() {
+            return (
+               <div>        
+                  <PostCreator handleClick={this.handleAdd} />
+                  <PostList posts={this.state.posts} handleUpdate={this.handleUpdate}/>
+               </div>
+            )
+         }
+      }
+      ReactDOM.render(<App />, document.getElementById('root'))
+   </script>   
+</head>
+<body>
+   <div id="root"></div>
+</body>
+</html>
