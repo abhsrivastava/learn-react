@@ -102,7 +102,6 @@
             var items = this.state.posts.slice();
             var item = items[id];
             if (updateType == 'delete') {
-               console.log('id' + id);
                items.splice(id, 1);
                this.setState({posts: items})
             } else if (updateType == 'increment') {
@@ -119,7 +118,7 @@
             if (item.text.trim() == "") return;
             var items = this.state.posts
             items.push(item)
-            this.setState({posts: items}, () => console.log(this.state.posts));
+            this.setState({posts: items});
          }
          render() {
             return (
