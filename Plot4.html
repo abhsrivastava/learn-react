@@ -197,10 +197,8 @@
                temp.push(this.state.cells[i].slice())
             }
             var newRow = this.findRow(col)
-            console.log(newRow);
             if (newRow != -1) {
                temp[newRow][col] = this.state.player ? 1 : 2;
-               console.log('set the latest move ' + newRow + ' col ' + col);
                var winner = this.checkVictory(temp, newRow, col);
                if (winner == 0) {
                   var gameEnd = this.checkGameEnd(temp);
