@@ -13,9 +13,18 @@
             super(props);
          }
          render() {        
+            var style = {
+               backgroundColor: '#d3d3d3',
+               width: '200px',
+               height: '50px'
+            };
+            var buttonText = this.props.id == this.props.answerKey ? this.props.x * this.props.y : Math.floor(Math.random() * 100);
             return (
                <div>
-                  <button>{this.props.id == this.props.answerKey ? this.props.x * this.props.y : Math.floor(Math.random() * 100)}</button>
+                  <button 
+                     style = {style}
+                     onClick ={() => this.props.handleClick(buttonText)} 
+                     >{buttonText}</button>
                </div>
             )
          }
@@ -37,20 +46,63 @@
             )
          }
       }
-      class Quiz extends React.Component {
+      class ScoreBoard extends React.Component {
          constructor(props) {
             super(props);
-            this.state = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20), answerKey: Math.floor(Math.random() * 4)};            
          }
          render() { return (
             <div>
-               <AppHeader x = {this.state.x} y = {this.state.y} />
-               <Button id = {0} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} />
-               <Button id = {1} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} />
-               <Button id = {2} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} />
-               <Button id = {3} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} />
+               <h2>Correct: {this.props.correct}</h2>
+               <h2>InCorrect: {this.props.incorrect}</h2>
             </div>
          )}
+      }
+      class Quiz extends React.Component {
+         constructor(props) {
+            super(props);
+            this.state = {
+               x: Math.floor(Math.random() * 20), 
+               y: Math.floor(Math.random() * 20), 
+               answerKey: Math.floor(Math.random() * 4),
+               correct: 0,
+               incorrect: 0
+            };            
+            this.handleClick = this.handleClick.bind(this);
+         }
+         render() { return (
+            <div style={{width: '30%'}}>
+               <div style={{float: 'left'}}>
+                  <AppHeader x = {this.state.x} y = {this.state.y} />
+                  <Button id = {0} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} handleClick={this.handleClick} />
+                  <Button id = {1} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} handleClick={this.handleClick} />
+                  <Button id = {2} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} handleClick={this.handleClick} />
+                  <Button id = {3} x = {this.state.x} y = {this.state.y} answerKey = {this.state.answerKey} handleClick={this.handleClick} />
+               </div>
+               <div style={{float: 'right', verticalAlign: 'middle'}}>
+                  <ScoreBoard correct={this.state.correct} incorrect={this.state.incorrect} />
+               </div>
+            </div>
+         )}
+         handleClick(buttonText) {
+            console.log(buttonText);
+            if (this.state.x * this.state.y == buttonText) {
+               this.setState({
+                  x: Math.floor(Math.random() * 20), 
+                  y: Math.floor(Math.random() * 20), 
+                  answerKey: Math.floor(Math.random() * 4), 
+                  correct: this.state.correct + 1,
+                  incorrect: this.state.incorrect
+               })
+            } else {
+               this.setState({
+                  x: Math.floor(Math.random() * 20), 
+                  y: Math.floor(Math.random() * 20), 
+                  answerKey: Math.floor(Math.random() * 4), 
+                  correct: this.state.correct,
+                  incorrect: this.state.incorrect + 1
+               })
+            }
+         }
       }
       ReactDOM.render(<Quiz />, document.getElementById('root'))
    </script>   
