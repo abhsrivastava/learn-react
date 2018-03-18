@@ -21,10 +21,7 @@
             }
          }
          isChecked(key) {
-            console.log('came inside ischecked for key ' + key);
-            console.log('the current special needs are ' + this.props.currentSpecialNeeds)
-            console.log(this.props.currentSpecialNeeds.indexOf(key))
-            if (this.props.currentSpecialNeeds.indexOf(key) > -1) {true} else {false}
+            if (this.props.currentSpecialNeeds.indexOf(key) > -1) {return true} else {return false}
          }
          render() {
             return (
@@ -172,7 +169,7 @@
                   </div>
                   <RegistrationActivity handleChange={this.props.handleActivitySelect} activities={this.props.activityList} currentActivity={this.props.currentActivity} />
                   <RegistrationSpecialNeeds addSpecialNeed={this.props.addSpecialNeed} removeSpecialNeed={this.props.removeSpecialNeed} restrictions={this.props.restrictionList} currentSpecialNeeds={this.props.currentSpecialNeeds} />
-                  <button style={style} onClick={() => this.props.addRegistration()}>Submit</button>
+                  <button disabled={!this.props.canSave} style={style} onClick={() => this.props.addRegistration()}>Submit</button>
                </div>
             )
          }
@@ -192,6 +189,7 @@
                currentActivity: "Science Lab",
                currentSpecialNeeds: []
             }
+            this.canSave = this.canSave.bind(this)
          }
          addRegistration(registration) {
             var newRegistrations = this.state.registrations.slice() // copy
@@ -215,7 +213,6 @@
             }
          }
          removeRegistration(id) {
-            console.log('came inside remove registration ' + id)
             var newRegistrations = this.state.registrations.slice() // copy
             newRegistrations.splice(id, 1) // mutate
             var newState = Object.assign({}, this.state, {registrations: newRegistrations})
@@ -233,6 +230,14 @@
             var newState = Object.assign({}, this.state, {currentActivity: activity})
             this.setState(newState)
          }
+         canSave() {
+            if (this.state.firstName != null && this.state.firstName != "" && 
+            this.state.lastName != null && this.state.lastName != "") {
+               return true
+            } else {
+               return false
+            }
+         }
          render() {
             return (
                <div>
@@ -248,7 +253,8 @@
                      currentActivity={this.state.currentActivity} 
                      currentSpecialNeeds={this.state.currentSpecialNeeds} 
                      firstName={this.state.firstName} 
-                     lastName = {this.state.lastName} />
+                     lastName = {this.state.lastName} 
+                     canSave = {this.canSave()} />
                   <RegistrationTable handleChange={this.removeRegistration.bind(this)} registrations={this.state.registrations} />
                </div>
             )
