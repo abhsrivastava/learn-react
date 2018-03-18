@@ -239,7 +239,12 @@
          render() {
             return (
                <div>
-                  <RegistrationForm handleChange={this.addRegistration.bind(this)} activityList={this.state.activityList} restrictionList={this.state.restrictionList} currentActivity={this.state.currentActivity} currentSpecialNeeds={this.state.currentSpecialNeeds} />
+                  <RegistrationForm 
+                     handleChange={this.addRegistration.bind(this)} 
+                     activityList={this.state.activityList} 
+                     restrictionList={this.state.restrictionList} 
+                     currentActivity={this.state.currentActivity} 
+                     currentSpecialNeeds={this.state.currentSpecialNeeds} />
                   <RegistrationTable handleChange={this.removeRegistration.bind(this)} registrations={this.state.registrations} />
                </div>
             )
