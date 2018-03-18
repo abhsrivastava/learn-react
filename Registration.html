@@ -1,0 +1,254 @@
+<DOCTYPE <!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <title>Registration Form Application</title>
+   <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+   <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+   <script type="text/babel">
+      class RegistrationSpecialNeeds extends React.Component {
+         constructor(props) {
+            super(props);
+            this.state = {specialneeds: this.props.currentSpecialNeeds}
+            this.isChecked.bind(this)
+         }
+         handleChange(event, key) {
+            if (event.target.checked) {
+               var newArray = this.state.specialneeds.slice() // copy
+               newArray.push(key) // mutate
+               this.setState({"specialneeds": newArray}, () => {
+                  this.props.handleChange(newArray.join())
+               })
+            } else {
+               var newArray = this.state.specialneeds.slice()
+               var indexOf = newArray.indexOf(key) // find key
+               if (indexOf > -1) {
+                  newArray.splice(indexOf, 1) // mutate
+               }      
+               this.setState({"specialneeds": newArray}, () => {
+                  this.props.handleChange(newArray.join())
+               })
+            }
+         }
+         isChecked(key) {
+            if (this.state.specialneeds.indexOf(key) > -1) {true} else {false}
+         }
+         render() {
+            return (
+               <div>
+               <label> check all that apply
+                  {
+                     this.props.restrictions.map((restriction, index) => 
+                        <div>
+                        <label>
+                           <input type='checkbox' name='restriction' checked={this.isChecked(restriction.key)} onChange={(e) => this.handleChange(e, restriction.key)}/>{restriction.key}) {restriction.name}
+                        </label>
+                        </div>
+                     )
+                  }
+               </label>
+               </div>
+            )
+         }
+      }
+      class RegistrationActivity extends React.Component {
+         constructor(props) {
+            super(props);
+            this.state = {activity: this.props.currentActivity}
+         }
+         handleChange(event) {
+            var newSelection = event.target.value
+            this.setState({activity: newSelection}, () => {
+               this.props.handleChange(newSelection)
+            })
+         }
+         render() {
+            return (
+               <div>
+                  <div>Select Activity</div>
+                  <div>
+                     <select onChange={this.handleChange.bind(this)} value={this.state.activity}>
+                        {
+                        this.props.activities.map((activity, index) => 
+                           <option>{activity}</option>
+                        )
+                        }
+                     </select>
+                  </div>
+               </div>
+            )
+         }
+      }
+      class RegistrationRemoveButton extends React.Component {
+         constructor(props) {
+            super(props)
+         }
+         render() { return(
+            <button onClick={() => this.props.handleClick(this.props.id)}>x</button>
+         )}
+      }
+      
+      class RegistrationHeader extends React.Component {
+         constructor(props) {
+            super(props)
+         }
+
+         render() { 
+            var style1 = {
+               display: "flex"
+            }
+            var style2 = {
+               width: 150
+            }
+            return (
+               <div style={style1}>
+                  <div style={style2}>Remove</div>
+                  <div style={style2}>First Name </div>
+                  <div style={style2}>Last Name </div>
+                  <div style={style2}>Activity</div>
+                  <div style={style2}>Restrictions</div>
+               </div>
+            )
+         }
+      }
+
+      class RegistrationRow extends React.Component {
+         constructor(props) {
+            super(props)
+         }
+         render() {
+            var style1 = {
+               display: 'flex'
+            };
+            var style2 = {
+               width: 150
+            };            
+            return (
+               <div style={style1}>
+                  <div style={style2}>
+                     <RegistrationRemoveButton id={this.props.id} handleClick={this.props.handleChange} />
+                  </div>
+                  <div style={style2}>{this.props.firstName}</div>
+                  <div style={style2}>{this.props.lastName}</div>
+                  <div style={style2}>{this.props.activity}</div>
+                  <div style={style2}>{this.props.restrictions}</div>                  
+               </div>
+            )
+         }
+      }
+
+      class RegistrationTable extends React.Component {
+         constructor(props) {
+            super(props)
+         }
+         render() {
+            return (
+               <div>
+                  <RegistrationHeader />
+                  {this.props.registrations.map((registration, index) => 
+                     <RegistrationRow id={index} handleChange={this.props.handleChange} firstName={registration.firstName} lastName={registration.lastName} activity={registration.activity} restrictions={registration.restrictions} />
+                  )}
+               </div>
+            )
+         }
+      }
+
+      class RegistrationForm extends React.Component {
+         constructor(props) {
+            super(props)
+            this.state = {
+               registration: {firstName: "", lastName: "", activity: "", restrictions: ""}
+            }
+         }
+         handleFirstNameChange(event) {
+            var newRegistration = Object.assign({}, this.state.registration, {firstName: event.target.value})
+            this.setState({registration: newRegistration})
+         }
+         handleLastNameChange(event) {
+            var newRegistration = Object.assign({}, this.state.registration, {lastName: event.target.value})
+            this.setState({registration: newRegistration})
+         }  
+         handleActivitySelect(newAct) {
+            var newRegistration = Object.assign({}, this.state.registration, {activity: newAct})
+            this.setState({registration: newRegistration})
+         }      
+         handleRestrictionsSelect(restrictions) {
+            var newRegistration = Object.assign({}, this.state.registration, {restrictions: restrictions})   
+            this.setState({registration: newRegistration})
+         }
+         saveRegistration() {
+            this.props.handleChange(this.state.registration)
+            this.setState({
+               registration: {firstName: "", lastName: "", activity: "", restrictions: ""}
+               }, () => {
+               console.log(this.state.registration)
+            })
+         }
+         render() { 
+            var style = {
+               padding: "15px 60px"
+            }
+            return (
+               <div>
+                  <div>
+                     <label> First Name:
+                        <input type="text" id="firstname" value={this.state.registration.firstName} onChange={this.handleFirstNameChange.bind(this)}/>
+                     </label>
+                  </div>
+                  <div>
+                     <label> Last Name:
+                        <input type="text" id="lastname" value={this.state.registration.lastName} onChange={this.handleLastNameChange.bind(this)} />
+                     </label>
+                  </div>
+                  <RegistrationActivity handleChange={this.handleActivitySelect.bind(this)} activities={this.props.activityList} currentActivity={this.props.currentActivity} />
+                  <RegistrationSpecialNeeds handleChange={this.handleRestrictionsSelect.bind(this)} restrictions={this.props.restrictionList} currentSpecialNeeds={this.props.currentSpecialNeeds} />
+                  <button style={style} onClick={this.saveRegistration.bind(this)}>Submit</button>
+               </div>
+            )
+         }
+      }
+      class RegistrationApp extends React.Component {
+         constructor(props) {
+            super(props);
+            this.state = {
+               registrations: [{firstName: "foo", lastName: "bar", activity: "Science Lab", restrictions: "a,b,c"}],
+               activityList: ["Science Lab", "Swimming", "Cooking", "Painting"],
+               restrictionList: [
+                  {key: "a", name: "Dietary Restrictions"}, 
+                  {key: 'b', name: 'Physical Disabilities'}, 
+                  {key: 'c', name: 'Medical Needs'}],
+               currentActivity: "Science Lab",
+               currentSpecialNeeds: []
+            }
+         }
+         addRegistration(registration) {
+            var newRegistrations = this.state.registrations.slice() // copy
+            newRegistrations.push(registration) // mutate
+            var newState = Object.assign({}, this.state, {registrations: newRegistrations})
+            this.setState(newState)
+         }
+         removeRegistration(id) {
+            console.log('came inside remove registration ' + id)
+            var newRegistrations = this.state.registrations.slice() // copy
+            newRegistrations.splice(id, 1) // mutate
+            var newState = Object.assign({}, this.state, {registrations: newRegistrations})
+            this.setState(newState)
+         }
+         render() {
+            return (
+               <div>
+                  <RegistrationForm handleChange={this.addRegistration.bind(this)} activityList={this.state.activityList} restrictionList={this.state.restrictionList} currentActivity={this.state.currentActivity} currentSpecialNeeds={this.state.currentSpecialNeeds} />
+                  <RegistrationTable handleChange={this.removeRegistration.bind(this)} registrations={this.state.registrations} />
+               </div>
+            )
+         }
+      }
+      ReactDOM.render(<RegistrationApp />, document.getElementById('root'))
+   </script>   
+</head>
+<body>
+   <div id="root" />
+</body>
+</html>
