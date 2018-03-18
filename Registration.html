@@ -21,6 +21,9 @@
             }
          }
          isChecked(key) {
+            console.log('came inside ischecked for key ' + key);
+            console.log('the current special needs are ' + this.props.currentSpecialNeeds)
+            console.log(this.props.currentSpecialNeeds.indexOf(key))
             if (this.props.currentSpecialNeeds.indexOf(key) > -1) {true} else {false}
          }
          render() {
@@ -41,7 +44,7 @@
             )
          }
       }
-      
+
       class RegistrationActivity extends React.Component {
          constructor(props) {
             super(props);
@@ -243,7 +246,9 @@
                      activityList={this.state.activityList} 
                      restrictionList={this.state.restrictionList} 
                      currentActivity={this.state.currentActivity} 
-                     currentSpecialNeeds={this.state.currentSpecialNeeds} />
+                     currentSpecialNeeds={this.state.currentSpecialNeeds} 
+                     firstName={this.state.firstName} 
+                     lastName = {this.state.lastName} />
                   <RegistrationTable handleChange={this.removeRegistration.bind(this)} registrations={this.state.registrations} />
                </div>
             )
