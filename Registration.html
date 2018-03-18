@@ -11,29 +11,17 @@
       class RegistrationSpecialNeeds extends React.Component {
          constructor(props) {
             super(props);
-            this.state = {specialneeds: this.props.currentSpecialNeeds}
             this.isChecked.bind(this)
          }
          handleChange(event, key) {
             if (event.target.checked) {
-               var newArray = this.state.specialneeds.slice() // copy
-               newArray.push(key) // mutate
-               this.setState({"specialneeds": newArray}, () => {
-                  this.props.handleChange(newArray.join())
-               })
+               this.props.addSpecialNeed(key)
             } else {
-               var newArray = this.state.specialneeds.slice()
-               var indexOf = newArray.indexOf(key) // find key
-               if (indexOf > -1) {
-                  newArray.splice(indexOf, 1) // mutate
-               }      
-               this.setState({"specialneeds": newArray}, () => {
-                  this.props.handleChange(newArray.join())
-               })
+               this.props.removeSpecialNeed(key)
             }
          }
          isChecked(key) {
-            if (this.state.specialneeds.indexOf(key) > -1) {true} else {false}
+            if (this.props.currentSpecialNeeds.indexOf(key) > -1) {true} else {false}
          }
          render() {
             return (
@@ -53,23 +41,21 @@
             )
          }
       }
+      
       class RegistrationActivity extends React.Component {
          constructor(props) {
             super(props);
-            this.state = {activity: this.props.currentActivity}
          }
          handleChange(event) {
             var newSelection = event.target.value
-            this.setState({activity: newSelection}, () => {
-               this.props.handleChange(newSelection)
-            })
+            this.props.handleChange(newSelection)
          }
          render() {
             return (
                <div>
                   <div>Select Activity</div>
                   <div>
-                     <select onChange={this.handleChange.bind(this)} value={this.state.activity}>
+                     <select onChange={this.handleChange.bind(this)} value={this.props.currentActivity}>
                         {
                         this.props.activities.map((activity, index) => 
                            <option>{activity}</option>
@@ -158,34 +144,13 @@
       class RegistrationForm extends React.Component {
          constructor(props) {
             super(props)
-            this.state = {
-               registration: {firstName: "", lastName: "", activity: "", restrictions: ""}
-            }
          }
          handleFirstNameChange(event) {
-            var newRegistration = Object.assign({}, this.state.registration, {firstName: event.target.value})
-            this.setState({registration: newRegistration})
+            this.props.handleFirstNameChange(event.target.value)
          }
          handleLastNameChange(event) {
-            var newRegistration = Object.assign({}, this.state.registration, {lastName: event.target.value})
-            this.setState({registration: newRegistration})
+            this.props.handleLastNameChange(event.target.value)
          }  
-         handleActivitySelect(newAct) {
-            var newRegistration = Object.assign({}, this.state.registration, {activity: newAct})
-            this.setState({registration: newRegistration})
-         }      
-         handleRestrictionsSelect(restrictions) {
-            var newRegistration = Object.assign({}, this.state.registration, {restrictions: restrictions})   
-            this.setState({registration: newRegistration})
-         }
-         saveRegistration() {
-            this.props.handleChange(this.state.registration)
-            this.setState({
-               registration: {firstName: "", lastName: "", activity: "", restrictions: ""}
-               }, () => {
-               console.log(this.state.registration)
-            })
-         }
          render() { 
             var style = {
                padding: "15px 60px"
@@ -194,17 +159,17 @@
                <div>
                   <div>
                      <label> First Name:
-                        <input type="text" id="firstname" value={this.state.registration.firstName} onChange={this.handleFirstNameChange.bind(this)}/>
+                        <input type="text" id="firstname" value={this.props.firstName} onChange={this.handleFirstNameChange.bind(this)}/>
                      </label>
                   </div>
                   <div>
                      <label> Last Name:
-                        <input type="text" id="lastname" value={this.state.registration.lastName} onChange={this.handleLastNameChange.bind(this)} />
+                        <input type="text" id="lastname" value={this.props.lastName} onChange={this.handleLastNameChange.bind(this)} />
                      </label>
                   </div>
-                  <RegistrationActivity handleChange={this.handleActivitySelect.bind(this)} activities={this.props.activityList} currentActivity={this.props.currentActivity} />
-                  <RegistrationSpecialNeeds handleChange={this.handleRestrictionsSelect.bind(this)} restrictions={this.props.restrictionList} currentSpecialNeeds={this.props.currentSpecialNeeds} />
-                  <button style={style} onClick={this.saveRegistration.bind(this)}>Submit</button>
+                  <RegistrationActivity handleChange={this.props.handleActivitySelect} activities={this.props.activityList} currentActivity={this.props.currentActivity} />
+                  <RegistrationSpecialNeeds addSpecialNeed={this.props.addSpecialNeed} removeSpecialNeed={this.props.removeSpecialNeed} restrictions={this.props.restrictionList} currentSpecialNeeds={this.props.currentSpecialNeeds} />
+                  <button style={style} onClick={() => this.props.addRegistration()}>Submit</button>
                </div>
             )
          }
@@ -215,6 +180,8 @@
             this.state = {
                registrations: [{firstName: "foo", lastName: "bar", activity: "Science Lab", restrictions: "a,b,c"}],
                activityList: ["Science Lab", "Swimming", "Cooking", "Painting"],
+               firstName: "",
+               lastName: "",
                restrictionList: [
                   {key: "a", name: "Dietary Restrictions"}, 
                   {key: 'b', name: 'Physical Disabilities'}, 
@@ -225,9 +192,24 @@
          }
          addRegistration(registration) {
             var newRegistrations = this.state.registrations.slice() // copy
-            newRegistrations.push(registration) // mutate
-            var newState = Object.assign({}, this.state, {registrations: newRegistrations})
+            newRegistrations.push({firstName: this.state.firstName, lastName: this.state.lastName, activity: this.state.currentActivity, restrictions: this.state.currentSpecialNeeds}) // mutate
+            var newState = Object.assign({}, this.state, {registrations: newRegistrations, firstName: "", lastName: "", currentActivity: "Science Lab", currentSpecialNeeds: []})
             this.setState(newState)
+         }
+         addSpecialNeed(key) {
+            var newSpecialNeeds = this.state.currentSpecialNeeds.slice() // copy
+            newSpecialNeeds.push(key)
+            var newState = Object.assign({}, this.state, {currentSpecialNeeds: newSpecialNeeds})
+            this.setState(newState)
+         }
+         removeSpecialNeed(key) {
+            var newSpecialNeeds = this.state.currentSpecialNeeds.slice() // copy
+            var index = this.state.currentSpecialNeeds.indexOf(key)
+            if (index > -1) {
+               newSpecialNeeds.splice(index, 1) // mutate
+               var newState = Object.assign({}, this.state, {currentSpecialNeeds: newSpecialNeeds})
+               this.setState(newState)
+            }
          }
          removeRegistration(id) {
             console.log('came inside remove registration ' + id)
@@ -236,11 +218,28 @@
             var newState = Object.assign({}, this.state, {registrations: newRegistrations})
             this.setState(newState)
          }
+         handleFirstNameChange(firstName) {
+            var newState = Object.assign({}, this.state, {firstName: firstName})
+            this.setState(newState)
+         }
+         handleLastNameChange(lastName) {
+            var newState = Object.assign({}, this.state, {lastName: lastName})
+            this.setState(newState)
+         }
+         handleActivitySelect(activity) {
+            var newState = Object.assign({}, this.state, {currentActivity: activity})
+            this.setState(newState)
+         }
          render() {
             return (
                <div>
                   <RegistrationForm 
-                     handleChange={this.addRegistration.bind(this)} 
+                     addRegistration={this.addRegistration.bind(this)} 
+                     addSpecialNeed={this.addSpecialNeed.bind(this)}
+                     removeSpecialNeed={this.removeSpecialNeed.bind(this)}
+                     handleFirstNameChange={this.handleFirstNameChange.bind(this)}
+                     handleLastNameChange={this.handleLastNameChange.bind(this)}
+                     handleActivitySelect={this.handleActivitySelect.bind(this)}
                      activityList={this.state.activityList} 
                      restrictionList={this.state.restrictionList} 
                      currentActivity={this.state.currentActivity} 
